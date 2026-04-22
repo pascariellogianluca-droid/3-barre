@@ -2,107 +2,380 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<title>3 Barre Interattive</title>
+<title>Priorità Progetto</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  body {
-    font-family: Arial, sans-serif;
-    text-align: center;
-    padding: 40px;
+  :root {
+    --bg:        #f4f5f7;
+    --card:      #ffffff;
+    --border:    #e0e3e8;
+    --text:      #1a1d23;
+    --muted:     #8a909c;
+    --accent1:   #2563eb;
+    --accent2:   #0891b2;
+    --accent3:   #7c3aed;
+    --track-bg:  #e0e3e8;
+    --track-h:   220px;
+    --thumb-size: 22px;
   }
-  .container {
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 48px 56px 44px;
+    width: min(620px, 96vw);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 8px 32px rgba(0,0,0,0.06);
+  }
+
+  /* Header */
+  .header {
+    margin-bottom: 36px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .header-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 6px;
+  }
+
+  .badge {
+    flex-shrink: 0;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent1);
+    background: #eff4ff;
+    border: 1px solid #c7d9fc;
+    border-radius: 4px;
+    padding: 3px 8px;
+  }
+
+  h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+
+  .subtitle {
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-top: 4px;
+    font-weight: 400;
+    line-height: 1.5;
+  }
+
+  /* Budget bar */
+  .budget-row {
+    margin-bottom: 44px;
+  }
+
+  .budget-labels {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .budget-labels span {
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .budget-labels strong {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .budget-track {
+    height: 6px;
+    background: var(--track-bg);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .budget-fill {
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, var(--accent1) 0%, var(--accent2) 50%, var(--accent3) 100%);
+    border-radius: 3px;
+    transform-origin: left;
+    transition: transform 0.2s ease;
+  }
+
+  /* Sliders row */
+  .sliders-row {
     display: flex;
     justify-content: center;
-    gap: 40px;
-    margin-top: 40px;
+    gap: clamp(32px, 10vw, 88px);
+    align-items: flex-start;
   }
-  .slider-box {
+
+  .slider-col {
     display: flex;
     flex-direction: column;
     align-items: center;
   }
+
+  /* Value */
+  .val-badge {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 1.6rem;
+    font-weight: 500;
+    margin-bottom: 14px;
+    min-width: 3ch;
+    text-align: center;
+    line-height: 1;
+  }
+
+  /* Vertical slider wrapper */
+  .vslider-wrap {
+    position: relative;
+    width: 40px;
+    height: 220px;
+  }
+
+  /* Custom track */
+  .vtrack {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    transform: translateX(-50%);
+    width: 6px;
+    height: 220px;
+    background: var(--track-bg);
+    border-radius: 3px;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .vtrack-fill {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    border-radius: 3px;
+    transition: height 0.1s ease;
+  }
+
+  /* Thumb */
+  .vthumb {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #fff;
+    border: 2.5px solid currentColor;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.14), 0 2px 8px rgba(0,0,0,0.08);
+    pointer-events: none;
+    transition: bottom 0.1s ease;
+    z-index: 2;
+  }
+
+  /* Native range — fully transparent, covers the whole area */
   input[type=range] {
-    writing-mode: bt-lr;
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 10;
+    writing-mode: vertical-lr;
+    direction: rtl;
     -webkit-appearance: slider-vertical;
-    height: 200px;
+    appearance: slider-vertical;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Label */
+  .col-label {
+    margin-top: 16px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    text-align: center;
+  }
+
+  /* Per-slider colors */
+  .slider-col.s1 .val-badge    { color: var(--accent1); }
+  .slider-col.s2 .val-badge    { color: var(--accent2); }
+  .slider-col.s3 .val-badge    { color: var(--accent3); }
+  .slider-col.s1 .vtrack-fill  { background: var(--accent1); }
+  .slider-col.s2 .vtrack-fill  { background: var(--accent2); }
+  .slider-col.s3 .vtrack-fill  { background: var(--accent3); }
+  .slider-col.s1 .vthumb       { color: var(--accent1); }
+  .slider-col.s2 .vthumb       { color: var(--accent2); }
+  .slider-col.s3 .vthumb       { color: var(--accent3); }
+  .slider-col.s1 .col-label    { color: var(--accent1); }
+  .slider-col.s2 .col-label    { color: var(--accent2); }
+  .slider-col.s3 .col-label    { color: var(--accent3); }
+
+  /* Footer */
+  .footer-note {
+    margin-top: 36px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    font-size: 0.72rem;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: #22c55e;
+    flex-shrink: 0;
   }
 </style>
 </head>
 <body>
 
-<h2>Come vuoi che sia fatto?</h2>
+<div class="card">
 
-<div class="container">
-  <div class="slider-box">
-    <label>Poco tempo</label>
-    <input type="range" min="0" max="100" value="66" id="s1">
-    <span id="v1">66</span>
+  <div class="header">
+    <div class="header-top">
+      <h2>Definisci le priorità del progetto</h2>
+      <span class="badge">Configurazione</span>
+    </div>
+    <p class="subtitle">Distribuisci il budget di priorità tra i tre parametri. La somma totale non può superare 200.</p>
   </div>
 
-  <div class="slider-box">
-    <label>Basso Costo</label>
-    <input type="range" min="0" max="100" value="66" id="s2">
-    <span id="v2">66</span>
+  <div class="budget-row">
+    <div class="budget-labels">
+      <span>Budget priorità utilizzato</span>
+      <strong id="sumDisplay">200 / 200</strong>
+    </div>
+    <div class="budget-track">
+      <div class="budget-fill" id="sumFill"></div>
+    </div>
   </div>
 
-  <div class="slider-box">
-    <label>Qualità</label>
-    <input type="range" min="0" max="100" value="68" id="s3">
-    <span id="v3">68</span>
+  <div class="sliders-row">
+
+    <div class="slider-col s1">
+      <div class="val-badge" id="v1">66</div>
+      <div class="vslider-wrap">
+        <div class="vtrack"><div class="vtrack-fill" id="fill1"></div></div>
+        <div class="vthumb" id="thumb1"></div>
+        <input type="range" min="0" max="100" value="66" id="s1">
+      </div>
+      <div class="col-label">Tempo</div>
+    </div>
+
+    <div class="slider-col s2">
+      <div class="val-badge" id="v2">66</div>
+      <div class="vslider-wrap">
+        <div class="vtrack"><div class="vtrack-fill" id="fill2"></div></div>
+        <div class="vthumb" id="thumb2"></div>
+        <input type="range" min="0" max="100" value="66" id="s2">
+      </div>
+      <div class="col-label">Costo</div>
+    </div>
+
+    <div class="slider-col s3">
+      <div class="val-badge" id="v3">68</div>
+      <div class="vslider-wrap">
+        <div class="vtrack"><div class="vtrack-fill" id="fill3"></div></div>
+        <div class="vthumb" id="thumb3"></div>
+        <input type="range" min="0" max="100" value="68" id="s3">
+      </div>
+      <div class="col-label">Qualità</div>
+    </div>
+
   </div>
+
+  <div class="footer-note">
+    <div class="dot"></div>
+    I valori si aggiustano automaticamente per rispettare il limite di priorità.
+  </div>
+
 </div>
 
 <script>
-const MAX_SUM = 200;
+  const MAX_SUM  = 200;
+  const TRACK_H  = 220;  // must match CSS height
+  const THUMB_R  = 11;   // half of thumb-size
 
-const s1 = document.getElementById('s1');
-const s2 = document.getElementById('s2');
-const s3 = document.getElementById('s3');
+  const data = [
+    { id: 's1', valId: 'v1', fillId: 'fill1', thumbId: 'thumb1' },
+    { id: 's2', valId: 'v2', fillId: 'fill2', thumbId: 'thumb2' },
+    { id: 's3', valId: 'v3', fillId: 'fill3', thumbId: 'thumb3' },
+  ].map(d => ({
+    input: document.getElementById(d.id),
+    val:   document.getElementById(d.valId),
+    fill:  document.getElementById(d.fillId),
+    thumb: document.getElementById(d.thumbId),
+  }));
 
-const v1 = document.getElementById('v1');
-const v2 = document.getElementById('v2');
-const v3 = document.getElementById('v3');
+  const sumDisplay = document.getElementById('sumDisplay');
+  const sumFill    = document.getElementById('sumFill');
 
-function update(changed) {
-  let a = parseInt(s1.value);
-  let b = parseInt(s2.value);
-  let c = parseInt(s3.value);
-
-  let sum = a + b + c;
-
-  if (sum > MAX_SUM) {
-    let excess = sum - MAX_SUM;
-
-    if (changed === s1) {
-      let total = b + c || 1;
-      b -= Math.round(excess * (b / total));
-      c -= Math.round(excess * (c / total));
-    } else if (changed === s2) {
-      let total = a + c || 1;
-      a -= Math.round(excess * (a / total));
-      c -= Math.round(excess * (c / total));
-    } else {
-      let total = a + b || 1;
-      a -= Math.round(excess * (a / total));
-      b -= Math.round(excess * (b / total));
-    }
-
-    a = Math.max(0, Math.min(100, a));
-    b = Math.max(0, Math.min(100, b));
-    c = Math.max(0, Math.min(100, c));
+  function applyVisuals() {
+    data.forEach(s => {
+      const v = parseInt(s.input.value);
+      s.val.textContent = v;
+      const fillH = (v / 100) * TRACK_H;
+      s.fill.style.height = fillH + 'px';
+      s.thumb.style.bottom = (fillH - THUMB_R) + 'px';
+    });
+    const total = data.reduce((acc, s) => acc + parseInt(s.input.value), 0);
+    sumDisplay.textContent = total + ' / ' + MAX_SUM;
+    sumFill.style.transform = 'scaleX(' + (total / MAX_SUM) + ')';
   }
 
-  s1.value = a;
-  s2.value = b;
-  s3.value = c;
+  function update(changedIdx) {
+    let vals = data.map(s => parseInt(s.input.value));
+    let sum = vals.reduce((a, b) => a + b, 0);
 
-  v1.textContent = a;
-  v2.textContent = b;
-  v3.textContent = c;
-}
+    if (sum > MAX_SUM) {
+      const excess = sum - MAX_SUM;
+      const others = [0, 1, 2].filter(i => i !== changedIdx);
+      const otherSum = others.reduce((acc, i) => acc + vals[i], 0) || 1;
+      others.forEach(i => {
+        vals[i] = Math.max(0, Math.min(100, vals[i] - Math.round(excess * (vals[i] / otherSum))));
+      });
+    }
 
-[s1, s2, s3].forEach(slider => {
-  slider.addEventListener('input', () => update(slider));
-});
+    data.forEach((s, i) => { s.input.value = vals[i]; });
+    applyVisuals();
+  }
+
+  data.forEach((s, i) => {
+    s.input.addEventListener('input', () => update(i));
+  });
+
+  applyVisuals();
 </script>
 
 </body>
