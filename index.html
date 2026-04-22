@@ -1,1 +1,109 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<title>3 Barre Interattive</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    padding: 40px;
+  }
+  .container {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin-top: 40px;
+  }
+  .slider-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  input[type=range] {
+    writing-mode: bt-lr;
+    -webkit-appearance: slider-vertical;
+    height: 200px;
+  }
+</style>
+</head>
+<body>
 
+<h2>Come vuoi che sia fatto?</h2>
+
+<div class="container">
+  <div class="slider-box">
+    <label>Poco tempo</label>
+    <input type="range" min="0" max="100" value="66" id="s1">
+    <span id="v1">66</span>
+  </div>
+
+  <div class="slider-box">
+    <label>Basso Costo</label>
+    <input type="range" min="0" max="100" value="66" id="s2">
+    <span id="v2">66</span>
+  </div>
+
+  <div class="slider-box">
+    <label>Qualità</label>
+    <input type="range" min="0" max="100" value="68" id="s3">
+    <span id="v3">68</span>
+  </div>
+</div>
+
+<script>
+const MAX_SUM = 200;
+
+const s1 = document.getElementById('s1');
+const s2 = document.getElementById('s2');
+const s3 = document.getElementById('s3');
+
+const v1 = document.getElementById('v1');
+const v2 = document.getElementById('v2');
+const v3 = document.getElementById('v3');
+
+function update(changed) {
+  let a = parseInt(s1.value);
+  let b = parseInt(s2.value);
+  let c = parseInt(s3.value);
+
+  let sum = a + b + c;
+
+  if (sum > MAX_SUM) {
+    let excess = sum - MAX_SUM;
+
+    if (changed === s1) {
+      let total = b + c || 1;
+      b -= Math.round(excess * (b / total));
+      c -= Math.round(excess * (c / total));
+    } else if (changed === s2) {
+      let total = a + c || 1;
+      a -= Math.round(excess * (a / total));
+      c -= Math.round(excess * (c / total));
+    } else {
+      let total = a + b || 1;
+      a -= Math.round(excess * (a / total));
+      b -= Math.round(excess * (b / total));
+    }
+
+    a = Math.max(0, Math.min(100, a));
+    b = Math.max(0, Math.min(100, b));
+    c = Math.max(0, Math.min(100, c));
+  }
+
+  s1.value = a;
+  s2.value = b;
+  s3.value = c;
+
+  v1.textContent = a;
+  v2.textContent = b;
+  v3.textContent = c;
+}
+
+[s1, s2, s3].forEach(slider => {
+  slider.addEventListener('input', () => update(slider));
+});
+</script>
+
+</body>
+</html>
